@@ -33,8 +33,10 @@ def upload() :
 
 		time.sleep(1)
 
+	job.meta['job_progess'] = 'completed'
 
-@app.route('/task')
+
+@app.route('/task',  methods=['GET', 'POST'])
 def home() :
 	job_id = str(len(job_ids) + 1)
 	job_metadata = {
@@ -59,6 +61,9 @@ def stop() :
 	if job.meta['status'] == 'stopped' :
 		return app.make_response(('Job has already been stopped', 400))
 
+	if job.meta['status'] == 'completed' :
+		return app.make_response(('Job has already been stopped', 400))
+
 	job.meta['status'] = 'stopped'
 	job.save()
 	job.cancel()
@@ -77,6 +82,9 @@ def resume() :
 
 	if job.meta['status'] == 'resume' :
 		return app.make_response(('Job is already in running.', 400))
+
+	if job.meta['status'] == 'completed' :
+		return app.make_response(('Job has already been stopped', 400))
 	
 	job.meta['status'] = 'resume'
 	job_object = queue.enqueue(upload, job_id = job.meta['job_id'], 
@@ -98,6 +106,9 @@ def terminate() :
 	if job.meta['status'] == 'resume' :
 		return app.make_response(('Cant terminate the running app.', 400))
 
+	if job.meta['status'] == 'completed' :
+		return app.make_response(('Job has already been stopped', 400))
+
 	job.meta['status'] = 'terminated'
 	job.save()
 	job.cancel()
@@ -106,9 +117,9 @@ def terminate() :
 
 
 
-@app.route('/list_jobs')
-def list_jobs() :
-	list_of_jobs = {}
+@app.route('/list_tasks')
+def list_task() :
+	list_of_tasks = {}
 
 	for i in job_ids :
 		data = {}
@@ -118,9 +129,9 @@ def list_jobs() :
 		data['progress'] = str(round(float(job.meta['job_progess']) * 100, 2)) + '%'
 		data['status'] = job.meta['status']
 
-		list_of_jobs[i] = data
+		list_of_tasks[i] = data
 
-	return list_of_jobs
+	return list_of_tasks
 
 
 if __name__ == '__main__':
