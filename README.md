@@ -24,6 +24,7 @@ We want to offer an implementation through which the user can now stop the long-
 
 ### Future Work
 1. SQL Database can be used to persist task and its metadata.
+2. Its can be deployed in kubernetes through docker image.
 
 
 ### Steps to run
